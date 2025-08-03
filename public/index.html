@@ -1,15 +1,52 @@
 
 <!DOCTYPE html>
-<html>
-<head><title>Zdrajca - Dołącz</title></head>
+<html lang="pl">
+<head><meta charset="UTF-8"><title>Zdrajca</title></head>
 <body>
-  <h1>Dołącz do gry</h1>
-  <input type="text" id="nick" placeholder="Twój nick">
-  <button onclick="join()">Dołącz</button>
-  <ul id="players"></ul>
-  <button onclick="start()">Start gry</button>
+  <h1>Zdrajca</h1>
+  <input id="room" placeholder="Nazwa pokoju"><br>
+  <input id="nick" placeholder="Twój nick"><br>
+  <select id="mode">
+    <option value="custom">Własne słowa</option>
+    <option value="random">Losowe słowa</option>
+  </select><br>
+  <input id="rounds" type="number" placeholder="Liczba rund" min="1"><br>
+  <button onclick="createRoom()">Stwórz pokój</button>
+  <button onclick="joinRoom()">Dołącz do pokoju</button>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="script.js"></script>
+  <script>
+    const socket = io();
+    function createRoom() {
+      const roomId = document.getElementById('room').value;
+      const nickname = document.getElementById('nick').value;
+      const mode = document.getElementById('mode').value;
+      const rounds = parseInt(document.getElementById('rounds').value);
+      socket.emit('createRoom', { roomId, nickname, mode, rounds });
+    }
+
+    function joinRoom() {
+      const roomId = document.getElementById('room').value;
+      const nickname = document.getElementById('nick').value;
+      socket.emit('joinRoom', { roomId, nickname });
+    }
+
+    socket.on('roomUpdate', (data) => {
+      console.log('Gracze w pokoju:', data.players.map(p => p.nickname).join(', '));
+    });
+
+    socket.on('yourWord', ({ word, traitor }) => {
+      alert((traitor ? 'Jesteś ZDRAJCĄ. ' : '') + 'Twoje słowo: ' + word);
+    });
+
+    socket.on('roundEnded', (data) => {
+      alert('Zdrajcą był: ' + data.impostorId);
+    });
+
+    socket.on('gameOver', ({ players }) => {
+      const wynik = players.map(p => `${p.nickname}: ${p.score} pkt`).join('\n');
+      alert('Gra zakończona!\n' + wynik);
+    });
+  </script>
 </body>
 </html>
