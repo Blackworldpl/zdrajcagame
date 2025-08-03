@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Twoje słowo</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
+    .word-box { font-size: 32px; margin: 30px auto; padding: 20px; border: 2px solid #000; width: fit-content; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Twoje zadanie</h1>
+  <div class="word-box" id="word">...</div>
+  <p id="role"></p>
+  <button onclick="goToVote()">Rozumiem</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const wordDiv = document.getElementById('word');
+    const roleP = document.getElementById('role');
+
+    socket.on('yourWord', ({ word, traitor }) => {
+      wordDiv.textContent = word;
+      roleP.textContent = traitor ? "Jesteś ZDRAJCĄ!" : "Jesteś zwykłym graczem.";
+    });
+
+    function goToVote() {
+      window.location.href = 'vote.html';
+    }
+  </script>
+</body>
+</html>

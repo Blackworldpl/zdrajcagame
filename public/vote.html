@@ -1,8 +1,42 @@
 
 <!DOCTYPE html>
-<html>
-<head><title>Zdrajca - Głosowanie</title></head>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Głosowanie</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; }
+    h1 { text-align: center; }
+    .player { margin: 10px 0; }
+    button { padding: 5px 10px; margin-left: 10px; }
+  </style>
+</head>
 <body>
-  <h1>Głosowanie (tu pojawi się w przyszłości)</h1>
+  <h1>Głosuj na zdrajcę</h1>
+  <div id="players"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const playersDiv = document.getElementById('players');
+
+    socket.on('playersUpdate', (players) => {
+      playersDiv.innerHTML = '';
+      players.forEach(p => {
+        const div = document.createElement('div');
+        div.classList.add('player');
+        div.textContent = p.nickname;
+
+        const btn = document.createElement('button');
+        btn.textContent = 'Głosuję';
+        btn.onclick = () => {
+          socket.emit('vote', p.id);
+          alert('Głos oddany!');
+        };
+
+        div.appendChild(btn);
+        playersDiv.appendChild(div);
+      });
+    });
+  </script>
 </body>
 </html>
